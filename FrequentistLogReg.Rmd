@@ -1,0 +1,413 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+library(gridExtra)
+library(GGally)
+library(ROCR)
+library(leaps)
+```
+
+```{r}
+data <- read.csv('~/Python Scripts/CreditCardApprovalModel/prepared_data_2.csv')
+data$LOG_AMT_INCOME_TOTAL <- log(data$AMT_INCOME_TOTAL)
+data
+```
+
+```{r}
+log_model_1 <- glm(target_paid_1 ~ 
+                     FLAG_GENDER_MALE + FLAG_OWN_CAR + FLAG_OWN_REALTY + CNT_CHILDREN + 
+                     AMT_INCOME_TOTAL + College_Education + Currently_Married + 
+                     Paying_Housing + White_Collar + AGE_YR + YRS_WORKED
+                     , family = "binomial", data=data)
+summary(log_model_1)
+```
+
+```{r}
+preds <- predict(log_model_1, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+```{r}
+log_model_2 <- glm(target_paid_1 ~ 
+                     FLAG_GENDER_MALE + FLAG_OWN_CAR + FLAG_OWN_REALTY + CNT_CHILDREN + 
+                     LOG_AMT_INCOME_TOTAL + College_Education + Currently_Married + 
+                     Paying_Housing + White_Collar + AGE_YR + YRS_WORKED
+                     , family = "binomial", data=data)
+summary(log_model_2)
+```
+
+
+```{r}
+preds <- predict(log_model_2, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+## LOG INCOME INTERACTIONS
+
+```{r}
+log_model_3 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + LOG_AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     LOG_AMT_INCOME_TOTAL*College_Education +
+                     LOG_AMT_INCOME_TOTAL*Currently_Married +
+                     LOG_AMT_INCOME_TOTAL*FLAG_GENDER_MALE +
+                     LOG_AMT_INCOME_TOTAL*FLAG_OWN_CAR +
+                     LOG_AMT_INCOME_TOTAL*FLAG_OWN_REALTY +
+                     LOG_AMT_INCOME_TOTAL*Paying_Housing +
+                     LOG_AMT_INCOME_TOTAL*White_Collar 
+                     , family = "binomial", data=data)
+summary(log_model_3)
+```
+
+```{r}
+preds <- predict(log_model_3, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+```{r}
+log_model_4 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + LOG_AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     LOG_AMT_INCOME_TOTAL*FLAG_OWN_REALTY
+                     , family = "binomial", data=data)
+summary(log_model_4)
+```
+
+```{r}
+preds <- predict(log_model_4, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+
+## INCOME INTERACTIONS
+
+```{r}
+log_model_5 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     AMT_INCOME_TOTAL*College_Education +
+                     AMT_INCOME_TOTAL*Currently_Married +
+                     AMT_INCOME_TOTAL*FLAG_GENDER_MALE +
+                     AMT_INCOME_TOTAL*FLAG_OWN_CAR +
+                     AMT_INCOME_TOTAL*FLAG_OWN_REALTY +
+                     AMT_INCOME_TOTAL*Paying_Housing +
+                     AMT_INCOME_TOTAL*White_Collar 
+                     , family = "binomial", data=data)
+summary(log_model_5)
+```
+
+```{r}
+preds <- predict(log_model_5, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+```{r}
+log_model_6 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar +
+                     AMT_INCOME_TOTAL*FLAG_GENDER_MALE +
+                     AMT_INCOME_TOTAL*FLAG_OWN_CAR +
+                     AMT_INCOME_TOTAL*FLAG_OWN_REALTY
+                     , family = "binomial", data=data)
+summary(log_model_6)
+```
+
+```{r}
+preds <- predict(log_model_6, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+
+
+
+
+## COUNT CHILDREN INTERACTIONS
+
+```{r}
+log_model_7 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     CNT_CHILDREN*College_Education +
+                     CNT_CHILDREN*Currently_Married +
+                     CNT_CHILDREN*FLAG_GENDER_MALE +
+                     CNT_CHILDREN*FLAG_OWN_CAR +
+                     CNT_CHILDREN*FLAG_OWN_REALTY +
+                     CNT_CHILDREN*Paying_Housing +
+                     CNT_CHILDREN*White_Collar 
+                     , family = "binomial", data=data)
+summary(log_model_7)
+```
+
+```{r}
+preds <- predict(log_model_7, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+```{r}
+log_model_8 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     CNT_CHILDREN*College_Education +
+                     CNT_CHILDREN*White_Collar 
+                     , family = "binomial", data=data)
+summary(log_model_8)
+```
+
+```{r}
+preds <- predict(log_model_8, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+## AGE INTERACTIONS
+
+```{r}
+log_model_9 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     AGE_YR*College_Education +
+                     AGE_YR*Currently_Married +
+                     AGE_YR*FLAG_GENDER_MALE +
+                     AGE_YR*FLAG_OWN_CAR +
+                     AGE_YR*FLAG_OWN_REALTY +
+                     AGE_YR*Paying_Housing +
+                     AGE_YR*White_Collar 
+                     , family = "binomial", data=data)
+summary(log_model_9)
+```
+
+```{r}
+preds <- predict(log_model_9, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+```{r}
+log_model_10 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar
+                     , family = "binomial", data=data)
+summary(log_model_10)
+```
+
+```{r}
+preds <- predict(log_model_10, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+
+## YEARS WORKED INTERACTIONS
+
+```{r}
+log_model_11 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar + 
+                     YRS_WORKED*College_Education +
+                     YRS_WORKED*Currently_Married +
+                     YRS_WORKED*FLAG_GENDER_MALE +
+                     YRS_WORKED*FLAG_OWN_CAR +
+                     YRS_WORKED*FLAG_OWN_REALTY +
+                     YRS_WORKED*Paying_Housing +
+                     YRS_WORKED*White_Collar 
+                     , family = "binomial", data=data)
+summary(log_model_11)
+```
+
+```{r}
+preds <- predict(log_model_11, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+```{r}
+log_model_12 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar +
+                     YRS_WORKED*Currently_Married +
+                     YRS_WORKED*FLAG_OWN_REALTY
+                     , family = "binomial", data=data)
+summary(log_model_12)
+```
+
+```{r}
+preds <- predict(log_model_12, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+## COMBINE ALL SIGNIFICANT INTERACTIONS
+
+```{r}
+log_model_13 <- glm(target_paid_1 ~ 
+                     CNT_CHILDREN + LOG_AMT_INCOME_TOTAL + AGE_YR + YRS_WORKED +
+                     College_Education + Currently_Married + FLAG_GENDER_MALE + 
+                     FLAG_OWN_CAR + FLAG_OWN_REALTY + Paying_Housing + White_Collar +
+                     CNT_CHILDREN*College_Education +
+                     CNT_CHILDREN*White_Collar +
+                     YRS_WORKED*Currently_Married +
+                     YRS_WORKED*FLAG_OWN_REALTY
+                     , family = "binomial", data=data)
+summary(log_model_13)
+```
+
+```{r}
+preds <- predict(log_model_13, newdata=data, type="response")
+rates <- prediction(preds, data$target_paid_1)
+auc<-performance(rates, measure = "auc")
+auc@y.values
+
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+plot(roc_result, main="ROC Curve for Target Paid 1")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+
+
+
+
+## Steps
+
+```{r}
+regnull <- glm(target_paid_1~1, data = data)
+step(regnull, scope=list(lower=regnull, upper=log_model_13), direction="both")
+```
+
+```{r}
+step(log_model_13, scope=list(lower=regnull, upper=log_model_13), direction="both")
+```
+
+
+
+
+
+
